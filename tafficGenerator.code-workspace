@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"GOPATH": "/home/caoyuhua/go",
+		"GOROOT": "/usr/lib/go-1.16"
+	}
+}
+// 

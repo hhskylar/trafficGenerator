@@ -1,20 +1,15 @@
 package main
 
 import (
-	"encoding/binary"
 	"flag"
 	"fmt"
 	"log"
 	"net"
-	"strconv"
 	"strings"
-	"time"
 	"trafficGenerator/src/utils"
 )
 
-const port = 12345
-
-var limitChan = make(chan bool, 10)
+var limitChan = make(chan bool, 100)
 
 func process(conn *net.UDPConn) {
 	data := make([]byte, 1024)
@@ -25,10 +20,10 @@ func process(conn *net.UDPConn) {
 	}
 	log.Printf("read form %v length:%v", remoteAddr, n)
 
-	daytime := time.Now().Unix()
-	b := make([]byte, 4)
-	binary.BigEndian.PutUint32(b, uint32(daytime))
-	conn.WriteToUDP(b, remoteAddr)
+	// daytime := time.Now().Unix()
+	// b := make([]byte, 4)
+	// binary.BigEndian.PutUint32(b, uint32(daytime))
+	// conn.WriteToUDP(b, remoteAddr)
 	<-limitChan
 }
 
@@ -43,13 +38,13 @@ func getHostIp() string {
 		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			ip := ipnet.IP
 			if ip.To4() != nil && strings.Index(ip.String(), "10.0") != -1 {
-				fmt.Println(ipnet.IP.String())
+				fmt.Println(ip.String())
 				return ip.String()
 			}
 
 		}
 	}
-	return ""
+	return "127.0.0.1"
 }
 
 func StartUdp() {
@@ -57,9 +52,9 @@ func StartUdp() {
 	if host == "" {
 		log.Fatalf("can not resolve cif\n")
 	}
-	log.Printf("ip addr:%v\n", host)
+	log.Println("ip addr:", host)
 
-	addr, err := net.ResolveUDPAddr("udp", host+":"+strconv.Itoa(port))
+	addr, err := net.ResolveUDPAddr("udp", host+":12345")
 	if err != nil {
 		log.Fatalf("Can't resolve address")
 	}
@@ -78,7 +73,6 @@ func StartUdp() {
 }
 
 func main() {
-
 	var argName = flag.String("name", "h.log", "host name")
 	var argLog = flag.String("log", "/home/caoyuhua/go/src/trafficGenerator/src", "log dir")
 	log.Printf("Recv begin host:%v \n", argName)
